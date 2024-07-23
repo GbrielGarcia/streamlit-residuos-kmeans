@@ -1,12 +1,12 @@
 import streamlit as st
-from src.app import run_app, save_generated_data
-from src.save import show_saved_data
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
-import io
+import matplotlib.colors as mcolors
+from src.app import run_app, save_generated_data
+from src.save import show_saved_data
 
 # Inicializar el estado de Streamlit para los datos generados
 if 'generated_data' not in st.session_state:
@@ -77,5 +77,14 @@ with tab3:
             plt.xlabel('Latitud')
             plt.ylabel('Longitud')
             st.pyplot(fig)
+
+            # Crear un DataFrame con los colores de los clusters
+            cluster_colors = plt.get_cmap('viridis')(np.linspace(0, 1, num_clusters))
+            data['color'] = data['Cluster'].apply(lambda x: mcolors.to_hex(cluster_colors[x]))
+            data['size'] = 20  # Incrementar el tamaño de los puntos
+
+            # Mostrar el mapa en Streamlit
+            st.subheader("Mapa de los Datos y Clústeres")
+            st.map(data, latitude='latitud', longitude='longitud', color='color', size='size')
         else:
             st.write(f"El archivo debe contener las columnas: {', '.join(required_columns)}")
